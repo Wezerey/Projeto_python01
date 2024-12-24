@@ -2,18 +2,19 @@ import random
 
 class ContaCorrente():
     contas = {}
-    def __init__(self, nome,senha, saldo, conta):
+    def __init__(self, nome,senha, saldo, conta,cheque=600):
         self._nome = nome
         self._senha = senha
         self._conta = conta
         self.saldo = saldo
+        self.cheque = cheque
         ContaCorrente.contas[self._conta] = {
             "nome": self._nome,
             "senha": self._senha,
             "saldo": self.saldo
         }
     def sacar(self, valor):
-        if self.saldo >= valor:
+        if self.saldo - valor >= -self.cheque:
             self.saldo -= valor
             return True
         else:
@@ -21,12 +22,22 @@ class ContaCorrente():
             return False
 
     def depositar(self, valor):
+        if self.cheque < 0: 
+            self.cheque += valor
+            if self.cheque > 0:
+                self.saldo += self.cheque
+                self.cheque = 0
         self.saldo += valor
-    @classmethod
-    def listar_contas(cls):
-        return cls.contas
-    
+        return self.cheque
     def exibir_saldo(self):
-        return f'Seu saldo atual: {self.saldo:.2f}'
-
-
+        cheque_disponivel = max(0, self.cheque + self.saldo)
+        if self.saldo > 0:
+            return (
+                f'Seu saldo atual: R$ {self.saldo:.2f}\n'
+                f'Seu limite de cheque especial disponível: R$ {self.cheque:.2f}'
+            )
+        else:
+            return (
+                f'Seu saldo atual: R$ {self.saldo:.2f}\n'
+                f'Seu limite de cheque especial disponível: R$ {cheque_disponivel:.2f}'
+            )
